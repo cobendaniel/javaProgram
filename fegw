@@ -1,0 +1,139 @@
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.io.FileWriter;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+
+class DateGenerator{
+    int year;
+    int daysNum;
+    int febLimit;
+    int loopLimit;
+    String[] dateArray;
+    String[] weekendYN;
+
+    public static void main(String[] args) throws IOException {
+        DateGenerator dg = new DateGenerator(2022);
+        dg.createPrimaryCol();
+        dg.checkWeekendYN(dg.dateArray);
+
+        String[] finalArray = new String[dg.dateArray.length];
+
+        for (int i = 0; i < dg.dateArray.length; i++){
+            finalArray[i] = dg.dateArray[i] + "," + dg.weekendYN[i];
+        }
+
+        SaveFile sf = new SaveFile("C:/Users/Admin/Desktop/testJava.txt", finalArray);
+    }
+
+    DateGenerator(int year){
+        this.year = year;
+
+        if (year % 4 != 0){
+            this.daysNum  = 366;
+            this.febLimit = 29;
+        }
+        else{
+            this.daysNum  = 367;
+            this.febLimit = 30;
+        }
+    }
+
+    public void createPrimaryCol(){
+        String stringYear = String.valueOf(this.year);
+        String stringMonth;
+        String stringDay;
+        String[] dateArray = new String[this.daysNum];
+        dateArray[0] = "date";
+
+        int counter = 1;
+
+        int[] array31 = {1, 3, 5, 7, 8, 10, 12};
+        int[] array30 = {4, 6, 9, 11};
+
+        for (int i = 1; i < 13; i++){
+            if (Utilities.checkValue(array31, i)){
+                this.loopLimit = 32;
+            }
+            else if (Utilities.checkValue(array30, i)){
+                this.loopLimit = 31;
+            }
+            else{
+                this.loopLimit = this.febLimit;
+            }
+
+            for (int j = 1; j < this.loopLimit; j++){
+                stringMonth = String.format("%1$02d", i);
+                stringDay   = String.format("%1$02d", j);
+
+                dateArray[counter] = stringYear + "-" + stringMonth + "-" + stringDay;
+                counter += 1;
+            }
+            this.dateArray = dateArray;
+        }
+    }
+
+    public void checkWeekendYN(String[] dateList) {
+        String dateString;
+
+        String[] weekendArray = new String[dateList.length];
+        weekendArray[0] = "weekendYN";
+
+        for (int i = 1; i < dateList.length; i++) {
+            dateString = dateList[i];
+            String id  = String.valueOf(LocalDate.parse(dateString).getDayOfWeek());
+
+            if ("SATURDAY".equalsIgnoreCase(id) || "SUNDAY".equalsIgnoreCase(id)) {
+                weekendArray[i] = "Y";
+            } else {
+                weekendArray[i] = "N";
+            }
+        }
+
+        this.weekendYN = weekendArray;
+    }
+}
+
+import java.io.FileWriter;
+        import java.io.IOException;
+
+public class SaveFile {
+    SaveFile(String filename, String[] stringArray) throws IOException {
+        SaveFile.saveFile(filename, stringArray);
+        System.out.println("File saved");
+    }
+
+    public static void saveFile(String fileName, String[] stringArray) throws IOException {
+        FileWriter writer = new FileWriter(fileName);
+
+        for (int i = 0; i < stringArray.length; i++){
+            writer.write(stringArray[i] + System.lineSeparator());
+        }
+        writer.close();
+    }
+}
+
+public class Utilities {
+    public static boolean checkValue(int[] intArray, int checkValue) {
+        boolean trueFalse = false;
+
+        for (int i = 0; i < intArray.length; i++) {
+            if (intArray[i] == checkValue) {
+                trueFalse = true;
+                break;
+            } else {
+                trueFalse = false;
+            }
+        }
+        return trueFalse;
+    }
+
+
+}
