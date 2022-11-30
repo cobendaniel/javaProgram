@@ -1,0 +1,51 @@
+
+def outerDictFunc(dictionary: dict):
+    keys_list = []
+    vals_list = []
+
+    def valFunc(key: str, value, counter: int = ""):
+        keys_list.append(f"{key}{counter}")
+        vals_list.append(value)
+
+    def listFunc(key: str, valList: list):
+        counter = 0
+
+        for i in valList:
+            if type(i) not in [list, dict]:
+                counter += 1
+                valFunc(key, i, counter)
+
+            elif type(i) == dict:
+                dictFunc(i)
+
+            elif type(i) == list and len(i) > 0:
+                listFunc(key, i)
+
+            elif type(i) == list and len(i) == 0:
+                keys_list.append(key)
+                vals_list.append(np.nan)
+
+    def dictFunc(innerDict: dict):
+        for (k, v) in innerDict.items():
+            if type(v) not in [dict, list]:
+                valFunc(k, v)
+            
+            elif type(v) == list and len(v) > 0:
+                listFunc(k, v)
+
+            elif type(v) == list and len(v) == 0:
+                keys_list.append(k)
+                vals_list.append(np.nan)
+
+            elif type(v) == dict:
+                keys_list.append(k)
+                vals_list.append(np.nan)
+
+                dictFunc(v)
+
+    dictFunc(dictionary)
+
+    return keys_list, vals_list
+
+new_list_4 = df.apply(lambda x: outerDictFunc(x["new"]), axis = 1)
+
